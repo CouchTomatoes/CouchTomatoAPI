@@ -160,12 +160,15 @@ exports.isMovie = function(imdb, callback){
 					return;
 				}
 
-				var total = 0;
-				results.forEach(function(result){
-					total += +(result)
-				});
+				// null = that provider couldn't tell. If none could, don't answer: CouchTomato then
+				// assumes it's a movie, and nothing wrong gets cached.
+				var answers = results.filter(function(result){ return result === true || result === false; });
+				if(answers.length === 0){
+					callback({});
+					return;
+				}
 
-				is_movie = (total > 0)
+				is_movie = answers.indexOf(true) > -1
 
 				// Cache
 				// Never cache a 'no' for ever: it is also what every provider failing looks like
