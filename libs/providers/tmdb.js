@@ -1,6 +1,6 @@
 var settings = global.settings.moviedb,
 	redis = require('redis'),
-	rclient = redis.createClient(),
+	rclient = redis.createClient(process.env.REDIS_URL),
 	async = require('async'),
 	querystring = require('querystring'),
 	log = global.createLogger(__filename);

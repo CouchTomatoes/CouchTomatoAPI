@@ -31,7 +31,7 @@ exports.info = function(imdb, callback){
 
 	api.request({
 		'timeout': settings.timeout || 3000,
-		'url': 'http://www.omdbapi.com/?apikey=' + settings.apikey + '=' + imdb,
+		'url': 'https://www.omdbapi.com/?apikey=' + settings.apikey + '&i=' + imdb,
 		'json': true
 	}, function(err, response, movie) {
 

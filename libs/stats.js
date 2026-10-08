@@ -1,6 +1,6 @@
 var crypto = require('crypto'),
 	redis = require('redis'),
-	rclient = redis.createClient(),
+	rclient = redis.createClient(process.env.REDIS_URL),
 	log = global.createLogger(__filename);
 
 var allowed_platforms = ['windows', 'osx', 'linux'],
@@ -63,7 +63,7 @@ exports.stats = function(req, res, next) {
 	rclient.zadd('user-last-request', now, user);
 
 	// Keep track of movies per user
-	var imdb_id = req.url.match(/tt\d{7}/g);
+	var imdb_id = req.url.match(/tt\d{7,8}/g);
 	if(imdb_id && imdb_id.length == 1 && !req.query.ignore)
 		rclient.zadd('usermovies:' + user, now, imdb_id[0]);
 

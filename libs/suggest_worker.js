@@ -1,5 +1,5 @@
 var redis = require('redis'),
-	rclient = redis.createClient();
+	rclient = redis.createClient(process.env.REDIS_URL);
 
 // Wait for users to be received
 process.on('message', function(users) {
