@@ -18,7 +18,8 @@ var headers = {
 // Some logging around request
 exports.request = function(options, callback){
 	if(settings.ENV == 'development')
-		log.info('Opening url:' + (options instanceof Object ? options.url : options));
+		// Never log API keys: development mode logs every outgoing URL
+		log.info('Opening url:' + String(options instanceof Object ? options.url : options).replace(/(api_?key=)[^&]*/gi, '$1***'));
 
 	var req = request[options.method || 'get'](merge({'headers': headers}, options)),
 		callback_done = false;
