@@ -8,9 +8,9 @@ exports.imdb = function(req, res) {
 	api.isMovie(imdb, function(result){
 
 		res.type('application/json');
-		res.json({
-			'is_movie': result
-		});
+		// Only answer when we know. CouchTomato treats an empty reply as "assume it's a movie";
+		// {"is_movie": {}} would read as "no" and block adding the movie.
+		res.json(result === true || result === false ? {'is_movie': result} : {});
 
 	});
 

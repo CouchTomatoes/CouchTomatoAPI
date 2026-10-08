@@ -31,7 +31,7 @@ exports.info = function(imdb, callback){
 
 	api.request({
 		'timeout': settings.timeout || 3000,
-		'url': 'http://www.omdbapi.com/?apikey=' + settings.apikey + '=' + imdb,
+		'url': 'https://www.omdbapi.com/?apikey=' + settings.apikey + '&i=' + imdb,
 		'json': true
 	}, function(err, response, movie) {
 
@@ -69,7 +69,7 @@ exports.info = function(imdb, callback){
 		var runtime, rating;
 
 		if(rating = parseFloat(movie.imdbRating || 0))
-			movie_data['rating']['imdb'] = [rating, parseInt((movie.imdbVotes || '0').replace(',', ''))];
+			movie_data['rating']['imdb'] = [rating, parseInt((movie.imdbVotes || '0').replace(/,/g, ''))];
 
 		if(runtime = runtimeToMinutes(movie.Runtime))
 			movie_data['runtime'] = runtime;
@@ -80,3 +80,24 @@ exports.info = function(imdb, callback){
 	});
 
 }
+
+// Is this IMDb id a movie? OMDb's Type is movie / series / episode / game.
+// Answers null when OMDb can't say (no key, down, unknown id), so a failure never reads as "not a movie".
+exports.ismovie = function(imdb, callback){
+
+	api.request({
+		'timeout': settings.timeout || 3000,
+		'url': 'https://www.omdbapi.com/?apikey=' + settings.apikey + '&i=' + imdb,
+		'json': true
+	}, function(err, response, movie) {
+
+		if(err || !movie || !movie.Type){
+			callback(null, null);
+			return;
+		}
+
+		callback(null, movie.Type == 'movie');
+
+	});
+
+};

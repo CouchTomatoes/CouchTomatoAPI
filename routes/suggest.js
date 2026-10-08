@@ -1,6 +1,6 @@
 var redis = require('redis'),
 	async = require('async'),
-	rclient = redis.createClient(),
+	rclient = redis.createClient(process.env.REDIS_URL),
 	fs = require('fs'),
 	fork = require('child_process').fork,
 	cpus = require('os').cpus().length;
@@ -29,7 +29,7 @@ exports.imdbs = function(req, res) {
 
 	// Ignore requested
 	imdbs_ignore.forEach(function(imdb){
-		if(imdb.length == 9)
+		if(/^tt\d{7,8}$/.test(imdb))
 			rem.push(imdb);
 	});
 

@@ -4,7 +4,7 @@ var async = require('async'),
 	providers = require('./providers'),
 	toIMDB = require('./providers/tmdb').toIMDB,
 	redis = require('redis'),
-	rclient = redis.createClient(),
+	rclient = redis.createClient(process.env.REDIS_URL),
 	log = global.createLogger(__filename);
 
 var headers = {
@@ -160,15 +160,20 @@ exports.isMovie = function(imdb, callback){
 					return;
 				}
 
-				var total = 0;
-				results.forEach(function(result){
-					total += +(result)
-				});
+				// null = that provider couldn't tell. If none could, don't answer: CouchTomato then
+				// assumes it's a movie, and nothing wrong gets cached.
+				var answers = results.filter(function(result){ return result === true || result === false; });
+				if(answers.length === 0){
+					callback({});
+					return;
+				}
 
-				is_movie = (total > 0)
+				is_movie = answers.indexOf(true) > -1
 
 				// Cache
-				rclient.set(hash, JSON.stringify(is_movie));
+				// Never cache a 'no' for ever: it is also what every provider failing looks like
+				if(is_movie) rclient.set(hash, JSON.stringify(is_movie));
+				else rclient.setex(hash, 3600, JSON.stringify(is_movie));
 
 				// Send back
 				callback(is_movie);
@@ -249,7 +254,8 @@ exports.getMovieInfo = function(id, callback){
 			], function(err, movie_info){
 
 				// Cache
-				rclient.setex(hash, 86400, JSON.stringify(movie_info));
+				// Don't cache an empty answer (missing key, provider down) for a day
+				rclient.setex(hash, Object.keys(movie_info).length > 1 ? 86400 : 300, JSON.stringify(movie_info));
 
 				// Send back
 				callback(movie_info);
@@ -326,7 +332,7 @@ exports.searchMovie = function(options, callback){
 				});
 
 				// Cache
-				rclient.setex(hash, 86400, JSON.stringify(new_results));
+				rclient.setex(hash, new_results.length ? 86400 : 300, JSON.stringify(new_results));
 
 				// Send back
 				callback(new_results);

@@ -1,7 +1,7 @@
 var cheerio = require('cheerio'),
 	settings = global.settings.mi,
 	redis = require('redis'),
-	rclient = redis.createClient(),
+	rclient = redis.createClient(process.env.REDIS_URL),
 	log = global.createLogger(__filename);
 
 exports.eta = function(imdb, callback){

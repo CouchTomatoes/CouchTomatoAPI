@@ -3,7 +3,7 @@ var putio = global.settings.putio,
 	twitter = global.settings.twitter,
 	oauth = require('oauth'),
 	redis = require('redis'),
-	rclient = redis.createClient();
+	rclient = redis.createClient(process.env.REDIS_URL);
 
 var consumer = new oauth.OAuth(
 	'https://twitter.com/oauth/request_token', 'https://twitter.com/oauth/access_token',

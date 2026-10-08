@@ -1,7 +1,7 @@
 var fs = require('fs'),
 	path = require('path'),
 	redis = require('redis'),
-	rclient = redis.createClient(),
+	rclient = redis.createClient(process.env.REDIS_URL),
 	log = global.createLogger(__filename);
 
 /**

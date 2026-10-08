@@ -1,6 +1,6 @@
 var settings = global.settings.moviedb,
 	redis = require('redis'),
-	rclient = redis.createClient(),
+	rclient = redis.createClient(process.env.REDIS_URL),
 	async = require('async'),
 	querystring = require('querystring'),
 	log = global.createLogger(__filename);
@@ -205,3 +205,25 @@ exports.toIMDB = function(id, callback){
 	})
 
 }
+
+// Is this IMDb id a movie? TMDB's /find puts it under movie_results or tv_*_results.
+// Answers null when TMDB doesn't know it, so a miss never reads as "not a movie".
+exports.ismovie = function(imdb, callback){
+
+	request('find/' + imdb, {'external_source': 'imdb_id'}, function(err, res, r){
+
+		if(err || !r){
+			callback(null, null);
+			return;
+		}
+
+		if((r.movie_results || []).length > 0)
+			callback(null, true);
+		else if((r.tv_results || []).length > 0 || (r.tv_episode_results || []).length > 0)
+			callback(null, false);
+		else
+			callback(null, null);
+
+	});
+
+};
