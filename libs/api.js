@@ -31,7 +31,7 @@ exports.request = function(options, callback){
 			result = decoded && (options.json ? JSON.parse(decoded.toString()) : decoded.toString())
 		}
 		catch(e){
-			log.error('Failed getting response: ' + options.url)
+			log.error('Failed getting response: ' + String(options.url).replace(/(api_?key=)[^&]*/gi, '$1***'))
 		}
 
 		return result;
